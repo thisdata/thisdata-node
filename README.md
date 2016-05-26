@@ -4,7 +4,7 @@ thisdata-node [![Build Status](https://travis-ci.org/thisdata/thisdata-node.png?
 thisdata-node is a nodejs client for the ThisData Login Intelligence API (https://thisdata.com).
 
 ## Setup
-Install the [latest thisdata-node package]() from npm
+Install the latest thisdata-node package from npm
 ```
 npm install thisdata --save
 ```
