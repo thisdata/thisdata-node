@@ -1,25 +1,70 @@
 var assert = require('assert');
+var http = require('http');
+var request = require('request');
+var express = require('express');
 var ThisData = require('../lib');
 
 var thisdata;
-var fakeEvent;
+var eventOptions;
+var server;
+var testServerUrl;
 
 describe('ThisData', function(){
 
-  beforeEach(function(){
-    thisdata = ThisData('fake-key');
+  before(function(){
+    testServerUrl = 'http://localhost:5001';
 
-    fakeEvent =   {
+    thisdata = ThisData('fake-key', {
+      host: testServerUrl
+    });
+
+    var app = express();
+
+    // Fake ThisData API endpoint
+    app.post('/events', function(req, res){
+      thisdata.track(req, eventOptions, function(err, body){
+        res.type('application/json');
+        res.send();
+      });
+    });
+
+    app.post('/verify', function(req, res){
+      thisdata.track(req, eventOptions, function(err, body){
+        res.type('application/json');
+        res.send({});
+      });
+    });
+
+    // Fake Express app controller
+    app.post('/login', function(req, res){
+      thisdata.track(req, eventOptions, function(err, body){
+        res.send('OK');
+      });
+    });
+
+    app.post('/transfer', function(req, res){
+      delete eventOptions.verb;
+
+      thisdata.verify(req, eventOptions, function(err, body){
+        res.send('OK');
+      });
+    });
+
+    server = http.createServer(app);
+    server.listen(5001);
+  });
+
+  beforeEach(function(){
+    eventOptions = {
       ip: '123.123.123.123',
       user_agent: 'Firefox, Windows 98',
-      verb: 'log-in',
+      verb: thisdata.verbs.LOG_IN,
       user: {
-        id: '1234user',
-        name: 'Tommy Lee Jones',
-        email: 'tommy@thisdata.com'
+        id: 'kingkong123',
+        name: 'King Kong',
+        email: 'kong@thisdata.com'
       }
     };
-
   });
 
   it('should expose a constructor', function(){
@@ -34,14 +79,21 @@ describe('ThisData', function(){
     assert.throws(ThisData, error('You must pass your ThisData api key'));
   });
 
+  it('should expose verbs as constants', function(){
+    assert.equal(thisdata.verbs.LOG_IN, 'log-in');
+  });
+
   describe('#track', function(){
 
-    it('should send a message to thisdata without a callback', function(){
-      thisdata.track(fakeEvent);
-    });
-
-    it('should send a message to thisdata with optional callback', function(done){
-      thisdata.track(fakeEvent, function(err, body){
+    it('should send a message to thisdata track api', function(done){
+      request({
+          method:'POST',
+          url: testServerUrl + '/login',
+          headers: {
+            'User-Agent': 'Chicken Browser'
+          }
+      }, function(err, res, body) {
+        assert.equal('OK', body);
         done();
       });
     });
@@ -55,7 +107,14 @@ describe('ThisData', function(){
     });
 
     it('should callback after a successful send to thisdata', function(done){
-      thisdata.track(fakeEvent, function(err, body){
+      request({
+          method:'POST',
+          url: testServerUrl + '/transfer',
+          headers: {
+            'User-Agent': 'Chicken Browser'
+          }
+      }, function(err, res, body) {
+        assert.equal('OK', body);
         done();
       });
     });
