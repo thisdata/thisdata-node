@@ -16,8 +16,8 @@ var thisdata = ThisData("YOUR API KEY FROM THISDATA");
 ```
 
 ## Track Events
-Find the point in your code just after a login success, failure or password reset .
-We recommend you use the `TrackAsync` method to send data to the ThisData API
+Find the point in your code just after a login success, failure or password reset
+and use the `track` method to send data to the ThisData API.
 ```
 thisdata.track({
   verb: 'log-in',
@@ -46,7 +46,7 @@ that we send in the `X-Signature` header.
 
 ```
 // returns true or false
-thisdata.validateWebhook('you shared secret', 'X-Signature value', 'request body');
+thisdata.validateWebhook('your shared secret', 'X-Signature value', 'request body');
 ```
 
 For more information about types of webhooks you can recieve see http://help.thisdata.com/docs/webhooks
