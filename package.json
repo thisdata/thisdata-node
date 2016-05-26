@@ -1,0 +1,36 @@
+{
+  "name": "thisdata-node",
+  "version": "0.0.1",
+  "description": "NodeJs client for tracking events with ThisData",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thisdata/thisdata-node.git"
+  },
+  "keywords": [
+    "security",
+    "authentication",
+    "2fa",
+    "login",
+    "anomaly",
+    "detection"
+  ],
+  "author": "Rich Chetwynd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thisdata/thisdata-node/issues"
+  },
+  "homepage": "https://github.com/thisdata/thisdata-node#readme",
+  "dependencies": {
+    "scmp": "^1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "2.5.2"
+  }
+}
