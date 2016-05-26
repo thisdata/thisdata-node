@@ -18,21 +18,28 @@ describe('ThisData', function(){
       host: testServerUrl
     });
 
+    eventOptions = {
+      ip: '123.123.123.123',
+      user_agent: 'Firefox, Windows 98',
+      verb: thisdata.verbs.LOG_IN,
+      user: {
+        id: 'kingkong123',
+        name: 'King Kong',
+        email: 'kong@thisdata.com'
+      }
+    };
+
     var app = express();
 
     // Fake ThisData API endpoint
-    app.post('/events', function(req, res){
-      thisdata.track(req, eventOptions, function(err, body){
-        res.type('application/json');
-        res.send();
-      });
+    app.post('/v1/events', function(req, res){
+      res.type('application/json');
+      res.send();
     });
 
-    app.post('/verify', function(req, res){
-      thisdata.track(req, eventOptions, function(err, body){
-        res.type('application/json');
-        res.send({});
-      });
+    app.post('/v1/verify', function(req, res){
+      res.type('application/json');
+      res.send();
     });
 
     // Fake Express app controller
@@ -43,8 +50,6 @@ describe('ThisData', function(){
     });
 
     app.post('/transfer', function(req, res){
-      delete eventOptions.verb;
-
       thisdata.verify(req, eventOptions, function(err, body){
         res.send('OK');
       });
@@ -54,7 +59,13 @@ describe('ThisData', function(){
     server.listen(5001);
   });
 
-  beforeEach(function(){
+  before(function(){
+    testServerUrl = 'http://localhost:5001';
+
+    thisdata = ThisData('fake-key', {
+      host: testServerUrl
+    });
+
     eventOptions = {
       ip: '123.123.123.123',
       user_agent: 'Firefox, Windows 98',
