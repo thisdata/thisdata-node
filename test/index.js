@@ -62,19 +62,15 @@ describe('ThisData', function(){
 
   });
 
-  describe('#validate', function(){
+  describe('#validateWebhook', function(){
 
     before(function(){
-
       webhookSignature = '291264d1d4b3857e872d67b7587d3702b28519a0e3ce689d688372b7d31f6af484439a1885f21650ac073e48119d496f44dc97d3dc45106409d345f057443c6b';
       webhookPayload = '{"version":1,"was_user":null,"alert":{"id":533879540905150463,"description":null}}'
-
     });
 
     it('should validate a webhook with valid secret', function(){
-
       assert(thisdata.validateWebhook('hello', webhookSignature, webhookPayload));
-
     });
 
   });
