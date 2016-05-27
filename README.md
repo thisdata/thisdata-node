@@ -16,7 +16,8 @@ var thisdata = ThisData("YOUR API KEY FROM THISDATA");
 ```
 
 ## Track Events
-Use this method to asynchrnously track events that happen in your app.
+Use this method to asynchronously track events that happen in your app.
+
 e.g. To track login related events, find the point in your code just after
 a login success, failure or password reset and use the `track` method to
 send data to the ThisData API.
@@ -52,21 +53,20 @@ thisdata.track(req, {
 * `user.mobile` - E.164 format - An mobile number for sending unusual activity SMS alerts to. e.g. +15555555555
 
 ### Event Types
-We recommend using verb constants e.g. `thisdata.verbs.LOG_IN` but you can use any verb that represents the type of event that you want to track.
+We recommend using verb constants `thisdata.verbs.LOG_IN` but you can use any verb that represents the type of event that you want to track.
 
 For a full list of verbs see http://help.thisdata.com/v1.0/docs/verbs
 
 ### Webhooks
-You should validate incoming webhooks to make sure theyre from ThisData. To do this you will enter a secret string
+You should validate incoming webhooks to make sure they're from ThisData. To do this you will enter a secret string
 in the settings area of your ThisData account and then use that same secret to validate the webhook signature
 that we send in the `X-Signature` header.
 
 ```
-// returns true or false
-thisdata.validateWebhook('your shared secret', 'X-Signature value', 'request body');
+var valid = thisdata.validateWebhook('your shared secret', 'X-Signature value', 'request body');
 ```
 
-For more information about types of webhooks you can recieve see http://help.thisdata.com/docs/webhooks
+For more information about types of webhooks you can receive see http://help.thisdata.com/docs/webhooks
 
 ## API Documentation
 
