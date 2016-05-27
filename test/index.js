@@ -109,6 +109,10 @@ describe('ThisData', function(){
       });
     });
 
+    it('should not blow up if req is null', function(){
+      thisdata.track(null);
+    });
+
   });
 
   describe('#verify', function(){
