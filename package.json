@@ -1,5 +1,5 @@
 {
-  "name": "thisdata-node",
+  "name": "thisdata",
   "version": "0.0.1",
   "description": "NodeJs client for tracking events with ThisData",
   "main": "index.js",
@@ -34,5 +34,12 @@
   "devDependencies": {
     "mocha": "2.5.2",
     "express": "^4.13.4"
-  }
+  },
+  "files": [
+    "LICENSE",
+    "History.md",
+    "README.md",
+    "index.js",
+    "lib/"
+  ]
 }

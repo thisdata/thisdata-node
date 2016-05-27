@@ -1,4 +1,4 @@
-thisdata-node [![Build Status](https://travis-ci.org/thisdata/thisdata-node.png?branch=master)](https://travis-ci.org/thisdata/thisdata-dotnet)
+thisdata-node [![Build Status](https://travis-ci.org/thisdata/thisdata-node.png?branch=master)](https://travis-ci.org/thisdata/thisdata-node)
 =============
 
 thisdata-node is a nodejs client for the ThisData Login Intelligence API (https://thisdata.com).
@@ -16,13 +16,13 @@ var thisdata = ThisData("YOUR API KEY FROM THISDATA");
 ```
 
 ## Track Events
-Find the point in your code just after a login success, failure or password reset
-and use the `track` method to send data to the ThisData API.
+Use this method to asynchrnously track events that happen in your app.
+e.g. To track login related events, find the point in your code just after
+a login success, failure or password reset and use the `track` method to
+send data to the ThisData API.
 ```
-thisdata.track({
-  verb: 'log-in',
-  ip: '0.0.0.0',
-  user_agent: 'Firefox, Windows 98',
+thisdata.track(req, {
+  verb: thisdata.verbs.LOG_IN,
   user: {
     id: 'john123455',
     name: 'John Titor',
@@ -31,13 +31,30 @@ thisdata.track({
 });
 ```
 
-### Optional params
+### Options
+`ip` and `user_agent` are extracted from `req` but you can override these value and supply additional fields using options.
+
+```
+{
+  verb: 'transfer',
+  ip: '0.0.0.0',
+  user_agent: 'Firefox, Windows 98',
+  user: {
+    id: 'john123455',
+    name: 'John Titor',
+    email: 'john+titor@thisdata.com'
+  }
+}
+```
+
 * `user.name` - string The full name of the user
 * `user.email` - string - An email address for sending unusual activity alerts to
 * `user.mobile` - E.164 format - An mobile number for sending unusual activity SMS alerts to. e.g. +15555555555
 
 ### Event Types
-For a full list of supported verbs see http://help.thisdata.com/v1.0/docs/verbs
+We recommend using verb constants e.g. `thisdata.verbs.LOG_IN` but you can use any verb that represents the type of event that you want to track.
+
+For a full list of verbs see http://help.thisdata.com/v1.0/docs/verbs
 
 ### Webhooks
 You should validate incoming webhooks to make sure theyre from ThisData. To do this you will enter a secret string
