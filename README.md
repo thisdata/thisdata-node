@@ -5,12 +5,12 @@ thisdata-node is a nodejs client for the ThisData Login Intelligence API (https:
 
 ## Setup
 Install the latest thisdata-node package from npm
-```
+```sh
 npm install thisdata --save
 ```
 
 Create a ThisData client
-```
+```js
 var ThisData = require('thisdata');
 var thisdata = ThisData("YOUR API KEY FROM THISDATA");
 ```
@@ -21,7 +21,7 @@ Use this method to asynchronously track events that happen in your app.
 e.g. To track login related events, find the point in your code just after
 a login success, failure or password reset and use the `track` method to
 send data to the ThisData API.
-```
+```js
 thisdata.track(req, {
   verb: thisdata.verbs.LOG_IN,
   user: {
@@ -35,7 +35,7 @@ thisdata.track(req, {
 ### Options
 `ip` and `user_agent` are extracted from `req` but you can override these value and supply additional fields using options.
 
-```
+```js
 {
   verb: 'transfer',
   ip: '0.0.0.0',
@@ -62,7 +62,7 @@ You should validate incoming webhooks to make sure they're from ThisData. To do 
 in the settings area of your ThisData account and then use that same secret to validate the webhook signature
 that we send in the `X-Signature` header.
 
-```
+```js
 var valid = thisdata.validateWebhook('your shared secret', 'X-Signature value', 'request body');
 ```
 
