@@ -39,11 +39,18 @@ thisdata.track(req, {
 {
   verb: 'transfer',
   ip: '0.0.0.0',
-  user_agent: 'Firefox, Windows 98',
+  userAgent: 'Firefox, Windows 98',
   user: {
     id: 'john123455',
     name: 'John Titor',
     email: 'john+titor@thisdata.com'
+  },
+  session: {
+    id: 'Optional'
+    cookieExpected: true
+  },
+  device: {
+    id: 'mobile-device-id'
   }
 }
 ```
@@ -51,6 +58,9 @@ thisdata.track(req, {
 * `user.name` - string The full name of the user
 * `user.email` - string - An email address for sending unusual activity alerts to
 * `user.mobile` - E.164 format - An mobile number for sending unusual activity SMS alerts to. e.g. +15555555555
+* `session.id` - string - Typically a browser session id but it's up to you
+* `session.cookieExpected` - boolean - Used in combination with [ThisData Javascript](http://help.thisdata.com/docs/better-tracking-using-javascript). Set `true` if the script is installed
+* `device.id` - string - A unique device identifier. Typically used for tracking mobile devices.
 
 ### Event Types
 We recommend using verb constants `thisdata.verbs.LOG_IN` but you can use any verb that represents the type of event that you want to track.
