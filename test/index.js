@@ -2,6 +2,7 @@ var assert = require('assert');
 var http = require('http');
 var request = require('request');
 var express = require('express');
+var bodyParser = require('body-parser');
 var ThisData = require('../lib');
 
 var thisdata;
@@ -26,12 +27,24 @@ describe('ThisData', function(){
         id: 'kingkong123',
         name: 'King Kong',
         email: 'kong@thisdata.com'
+      },
+      session: {
+        id: null,
+        td_cookie_expected: false
       }
     };
 
     var app = express();
+    app.use(bodyParser.json());
 
     // Fake ThisData API endpoint
+    app.post('/event', function(req, res){
+
+      var ev = thisdata.event.build(req, req.body);
+
+      res.send(ev);
+    });
+
     app.post('/v1/events', function(req, res){
       res.type('application/json');
       res.send();
@@ -42,15 +55,14 @@ describe('ThisData', function(){
       res.send();
     });
 
-    // Fake Express app controller
     app.post('/login', function(req, res){
-      thisdata.track(req, eventOptions, function(err, body){
+      thisdata.track(req, req.body, function(err, body){
         res.send('OK');
       });
     });
 
     app.post('/transfer', function(req, res){
-      thisdata.verify(req, eventOptions, function(err, body){
+      thisdata.verify(req, req.body, function(err, body){
         res.send('OK');
       });
     });
@@ -94,6 +106,90 @@ describe('ThisData', function(){
     assert.equal(thisdata.verbs.LOG_IN, 'log-in');
   });
 
+  describe('#event', function(){
+
+    it('should allow authenticated to be set', function(done){
+      request({
+          method:'POST',
+          url: testServerUrl + '/event',
+          json: {
+            user: {
+              id: '123',
+              authenticated: false
+            }
+          }
+      }, function(err, res, body) {
+        assert.equal(body.user.authenticated, false);
+        done();
+      });
+    });
+
+    it('should track devices', function(done){
+      request({
+          method:'POST',
+          url: testServerUrl + '/event',
+          json: {
+            device: {
+              id: 'mr-t'
+            }
+          }
+      }, function(err, res, body) {
+        assert.equal(body.device.id, 'mr-t');
+        done();
+      });
+    });
+
+    it('should extract default to building event using request properties', function(done){
+
+      var expectedEvent = {
+        ip: '123.123.123.123',
+        user_agent: 'Chicken Browser',
+        user: { id: 'anonymous' },
+        session: { id: null, td_cookie_id: 'hello', td_cookie_expected: true },
+        device: {}
+      }
+
+      request({
+          method:'POST',
+          url: testServerUrl + '/event',
+          headers: {
+            'User-Agent': 'Chicken Browser',
+            'Cookie': '__tdli=hello',
+            'X-FORWARDED-FOR': '123.123.123.123'
+          },
+          json: {
+            session: {
+              cookieExpected: true
+            }
+          }
+      }, function(err, res, body) {
+        assert.deepEqual(body, expectedEvent);
+        done();
+      });
+    });
+
+    it('should be able to customize the cookie name', function(done){
+
+      thisdata = ThisData('fake-key', {
+        host: testServerUrl,
+        cookieName: 'chocolate'
+      });
+
+      request({
+          method:'POST',
+          url: testServerUrl + '/event',
+          headers: {
+            'Cookie': 'chocolate=chip'
+          },
+          json: {}
+      }, function(err, res, body) {
+        assert.equal(body.session.td_cookie_id, 'chip');
+        done();
+      });
+    });
+
+  });
+
   describe('#track', function(){
 
     it('should send a message to thisdata track api', function(done){
@@ -102,7 +198,8 @@ describe('ThisData', function(){
           url: testServerUrl + '/login',
           headers: {
             'User-Agent': 'Chicken Browser'
-          }
+          },
+          json: eventOptions
       }, function(err, res, body) {
         assert.equal('OK', body);
         done();
@@ -127,7 +224,8 @@ describe('ThisData', function(){
           url: testServerUrl + '/transfer',
           headers: {
             'User-Agent': 'Chicken Browser'
-          }
+          },
+          json: eventOptions
       }, function(err, res, body) {
         assert.equal('OK', body);
         done();
