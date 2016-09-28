@@ -71,3 +71,13 @@ For more information about types of webhooks you can receive see http://help.thi
 ## API Documentation
 
 API Documentation is available at [http://help.thisdata.com/docs/apiv1events](http://help.thisdata.com/docs/apiv1events).
+
+## Test
+Run the unit tests
+```sh
+npm test
+```
+
+## Contributing
+Bug reports and pull requests are welcome on GitHub at https://github.com/thisdata/thisdata-node
+
