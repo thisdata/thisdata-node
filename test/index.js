@@ -188,6 +188,23 @@ describe('ThisData', function(){
       });
     });
 
+    it('should let cookieExpected be set on initialization', function(done){
+
+      thisdata = ThisData('fake-key', {
+        host: testServerUrl,
+        cookieExpected: true
+      });
+
+      request({
+          method:'POST',
+          url: testServerUrl + '/event',
+          json: {}
+      }, function(err, res, body) {
+        assert.equal(body.session.td_cookie_expected, true);
+        done();
+      });
+    });
+
   });
 
   describe('#track', function(){
