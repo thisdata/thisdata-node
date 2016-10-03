@@ -4,19 +4,66 @@ var request = require('request');
 var express = require('express');
 var bodyParser = require('body-parser');
 var ThisData = require('../lib');
+var eventsPayload = require('./stub/events_list');
 
 var thisdata;
-var eventOptions;
 var server;
-var testServerUrl;
+var eventOptions;
+
+var testServerUrl = 'http://localhost:5001';
+var rq = request.defaults({
+  baseUrl: testServerUrl
+});
+
 
 describe('ThisData', function(){
 
   before(function(){
-    testServerUrl = 'http://localhost:5001';
 
+    var app = express();
+    app.use(bodyParser.json());
+
+    // Fake ThisData API endpoint
+    app.post('/event', function(req, res){
+      var ev = thisdata.event.build(req, req.body);
+      res.send(ev);
+    });
+
+    app.post('/login', function(req, res){
+      thisdata.track(req, req.body, function(e, r, b){
+        res.send('OK');
+      });
+    });
+
+    app.post('/transfer', function(req, res){
+      thisdata.verify(req, req.body, function(e, r, b){
+        res.send(b);
+      });
+    });
+
+    // FAKE THISDATA ENDPOINTS
+    app.post('/v1/events', function(req, res){
+      res.type('application/json');
+      res.send();
+    });
+
+    app.post('/v1/verify', function(req, res){
+      res.type('application/json');
+      res.send({ score: 0, risk_level: 'green', triggers: [], messages: [] });
+    });
+
+    app.get('/v1/events', function(req, res){
+      res.type('application/json');
+      res.send(eventsPayload);
+    });
+
+    server = http.createServer(app);
+    server.listen(5001);
+  });
+
+  beforeEach(function(){
     thisdata = ThisData('fake-key', {
-      host: testServerUrl
+      host: testServerUrl + '/v1'
     });
 
     eventOptions = {
@@ -33,62 +80,8 @@ describe('ThisData', function(){
         td_cookie_expected: false
       }
     };
-
-    var app = express();
-    app.use(bodyParser.json());
-
-    // Fake ThisData API endpoint
-    app.post('/event', function(req, res){
-
-      var ev = thisdata.event.build(req, req.body);
-
-      res.send(ev);
-    });
-
-    app.post('/v1/events', function(req, res){
-      res.type('application/json');
-      res.send();
-    });
-
-    app.post('/v1/verify', function(req, res){
-      res.type('application/json');
-      res.send();
-    });
-
-    app.post('/login', function(req, res){
-      thisdata.track(req, req.body, function(err, body){
-        res.send('OK');
-      });
-    });
-
-    app.post('/transfer', function(req, res){
-      thisdata.verify(req, req.body, function(err, body){
-        res.send('OK');
-      });
-    });
-
-    server = http.createServer(app);
-    server.listen(5001);
   });
 
-  before(function(){
-    testServerUrl = 'http://localhost:5001';
-
-    thisdata = ThisData('fake-key', {
-      host: testServerUrl
-    });
-
-    eventOptions = {
-      ip: '123.123.123.123',
-      user_agent: 'Firefox, Windows 98',
-      verb: thisdata.verbs.LOG_IN,
-      user: {
-        id: 'kingkong123',
-        name: 'King Kong',
-        email: 'kong@thisdata.com'
-      }
-    };
-  });
 
   it('should expose a constructor', function(){
     assert.equal('function', typeof ThisData);
@@ -109,9 +102,7 @@ describe('ThisData', function(){
   describe('#event', function(){
 
     it('should allow authenticated to be set', function(done){
-      request({
-          method:'POST',
-          url: testServerUrl + '/event',
+      rq.post('/event', {
           json: {
             user: {
               id: '123',
@@ -125,9 +116,7 @@ describe('ThisData', function(){
     });
 
     it('should track devices', function(done){
-      request({
-          method:'POST',
-          url: testServerUrl + '/event',
+      rq.post('/event', {
           json: {
             device: {
               id: 'mr-t'
@@ -149,9 +138,7 @@ describe('ThisData', function(){
         device: {}
       }
 
-      request({
-          method:'POST',
-          url: testServerUrl + '/event',
+      rq.post('/event', {
           headers: {
             'User-Agent': 'Chicken Browser',
             'Cookie': '__tdli=hello',
@@ -175,9 +162,7 @@ describe('ThisData', function(){
         cookieName: 'chocolate'
       });
 
-      request({
-          method:'POST',
-          url: testServerUrl + '/event',
+      rq.post('/event', {
           headers: {
             'Cookie': 'chocolate=chip'
           },
@@ -195,9 +180,7 @@ describe('ThisData', function(){
         cookieExpected: true
       });
 
-      request({
-          method:'POST',
-          url: testServerUrl + '/event',
+      rq.post('/event', {
           json: {}
       }, function(err, res, body) {
         assert.equal(body.session.td_cookie_expected, true);
@@ -207,12 +190,28 @@ describe('ThisData', function(){
 
   });
 
+  describe('#events', function(){
+
+    it('should allow filtering of events', function(done){
+
+      thisdata.getEvents({
+        limit: 1,
+        verbs: ['log-in']
+      }, function(err, res, body){
+
+        assert.equal('api_key=fake-key&limit=1&verbs%5B0%5D=log-in', res.request.url.query);
+        assert.equal(1, body.total);
+        assert.deepEqual(eventsPayload, body);
+
+        done();
+      });
+    });
+  });
+
   describe('#track', function(){
 
     it('should send a message to thisdata track api', function(done){
-      request({
-          method:'POST',
-          url: testServerUrl + '/login',
+      rq.post('login', {
           headers: {
             'User-Agent': 'Chicken Browser'
           },
@@ -236,15 +235,14 @@ describe('ThisData', function(){
     });
 
     it('should callback after a successful send to thisdata', function(done){
-      request({
-          method:'POST',
-          url: testServerUrl + '/transfer',
+      rq.post('/transfer', {
           headers: {
             'User-Agent': 'Chicken Browser'
           },
           json: eventOptions
       }, function(err, res, body) {
-        assert.equal('OK', body);
+        assert.equal('green', body.risk_level);
+
         done();
       });
     });
