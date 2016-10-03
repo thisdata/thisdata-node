@@ -18,7 +18,11 @@ var thisdata = ThisData("YOUR API KEY FROM THISDATA");
 ## Track Events
 Use this method to asynchronously track events that happen in your app.
 
-e.g. To track login related events, find the point in your code just after
+```js
+thisdata.track(request, options);
+```
+
+To track login related events, find the point in your code just after
 a login success, failure or password reset and use the `track` method to
 send data to the ThisData API.
 ```js
@@ -65,7 +69,63 @@ thisdata.track(req, {
 ### Event Types
 We recommend using verb constants `thisdata.verbs.LOG_IN` but you can use any verb that represents the type of event that you want to track.
 
-For a full list of verbs see http://help.thisdata.com/v1.0/docs/verbs
+For a full list of verbs see [http://help.thisdata.com/v1.0/docs/verbs](http://help.thisdata.com/v1.0/docs/verbs)
+
+## Verify Identity
+Use the `Verify` method to enable contextual authentication in your app. It accepts the same parameters as the `Track` event with the exception of the event type/verb.
+
+```js
+thisdata.verify(request, options, callback);
+```
+
+Verify will return a risk score between 0->1 which indicates our level confidence that the user is who they say they are.
+
+```js
+{ score: 0, risk_level: 'green', triggers: [], messages: [] }
+```
+
+0.0 - low risk/high confidence it's the real user
+
+1.0 - high risk/low confidence it's the real user
+
+
+```js
+thisdata.verify(req, {
+  user: {
+    id: 'john123455',
+    name: 'John Titor',
+    email: 'john+titor@thisdata.com'
+  }
+}, function(err, xhr, body){
+
+  if(body.score > 0.9){
+    // Step up authentication
+  }
+
+});
+```
+
+### Get a list of Events
+You can get a list of events enriched with their risk score and location data for us in custom audit logs. See the [docs for possible query filters and paging params](http://help.thisdata.com/docs/v1getevents).
+
+```js
+thisdata.getEvents(options, callback);
+```
+
+Get last successful log-in time and location for a user.
+
+```
+thisdata.getEvents({
+  user_id: 'john123455',
+  limit: 1,
+  verbs: ['log-in']
+}, function(err, xhr, body){
+
+  // last login was from
+  var loginCity = body.results[0].location.address.city_name;
+
+});
+```
 
 ### Webhooks
 You should validate incoming webhooks to make sure they're from ThisData. To do this you will enter a secret string
