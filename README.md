@@ -106,7 +106,7 @@ thisdata.verify(req, {
 ```
 
 ### Get a list of Events
-You can get a list of events enriched with their risk score and location data for us in custom audit logs. See the [docs for possible query filters and paging params](http://help.thisdata.com/docs/v1getevents).
+You can get a list of events enriched with their risk score and location data for use in custom audit logs. See the [docs for possible query filters and paging params](http://help.thisdata.com/docs/v1getevents).
 
 ```js
 thisdata.getEvents(options, callback);
