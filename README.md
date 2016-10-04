@@ -96,7 +96,7 @@ thisdata.verify(req, {
     name: 'John Titor',
     email: 'john+titor@thisdata.com'
   }
-}, function(err, xhr, body){
+}, function(err, body){
 
   if(body.score > 0.9){
     // Step up authentication
@@ -119,7 +119,7 @@ thisdata.getEvents({
   user_id: 'john123455',
   limit: 1,
   verbs: ['log-in']
-}, function(err, xhr, body){
+}, function(err, body){
 
   // last login was from
   var loginCity = body.results[0].location.address.city_name;
