@@ -30,13 +30,13 @@ describe('ThisData', function(){
     });
 
     app.post('/login', function(req, res){
-      thisdata.track(req, req.body, function(e, r, b){
+      thisdata.track(req, req.body, function(e, b){
         res.send('OK');
       });
     });
 
     app.post('/transfer', function(req, res){
-      thisdata.verify(req, req.body, function(e, r, b){
+      thisdata.verify(req, req.body, function(e, b){
         res.send(b);
       });
     });
@@ -97,6 +97,19 @@ describe('ThisData', function(){
 
   it('should expose verbs as constants', function(){
     assert.equal(thisdata.verbs.LOG_IN, 'log-in');
+  });
+
+  it('should supress non http errors', function(done){
+
+    thisdata = ThisData('fake-key', {
+      host: 'http://unknownhost.fake'
+    });
+
+    rq.post('/login', {
+        json: {}
+    }, function(err, res, body) {
+      done();
+    });
   });
 
   describe('#event', function(){
@@ -197,9 +210,8 @@ describe('ThisData', function(){
       thisdata.getEvents({
         limit: 1,
         verbs: ['log-in']
-      }, function(err, res, body){
+      }, function(err, body){
 
-        assert.equal('api_key=fake-key&limit=1&verbs%5B0%5D=log-in', res.request.url.query);
         assert.equal(1, body.total);
         assert.deepEqual(eventsPayload, body);
 
