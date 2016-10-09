@@ -114,7 +114,7 @@ thisdata.getEvents(options, callback);
 
 Get last successful log-in time and location for a user.
 
-```
+```js
 thisdata.getEvents({
   user_id: 'john123455',
   limit: 1,
