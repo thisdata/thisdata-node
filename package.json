@@ -1,6 +1,6 @@
 {
   "name": "thisdata",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "NodeJs client for tracking events with ThisData",
   "main": "index.js",
   "directories": {
