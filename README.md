@@ -127,6 +127,51 @@ thisdata.getEvents({
 });
 ```
 
+
+#### Managing custom Rules
+You can get, create, update and delete custom rules. 
+
+Create a rule
+```js
+// returns a rule
+
+thisdata.rules.create({
+  name: "Blacklist all ipv4 addresses",
+  description: "Blocks every possible ipv4 address",
+  type: "blacklist",
+  target: "location.ip",
+  filters: ["0.0.0.0/0"]
+}, function(err, rule){ });
+```
+
+List all rules
+```js
+thisdata.rules.list(function(err, rules){ });
+```
+
+Find a single rule
+```js
+thisdata.rules.get("123456", function(err, rule){
+  console.log(rule.id);
+})
+```
+
+Update a rule
+```js
+// id is reqired. Other params are optional
+
+thisdata.rules.update({
+  id: "123456",
+  filters: ["0.0.0.0/0",""]
+}, function(err, rule){ });
+```
+
+Delete a rule
+```js
+// returns deleted as bool
+thisdata.rules.delete("123456", function(err, deleted){ })
+```
+
 ### Webhooks
 You should validate incoming webhooks to make sure they're from ThisData. To do this you will enter a secret string
 in the settings area of your ThisData account and then use that same secret to validate the webhook signature
